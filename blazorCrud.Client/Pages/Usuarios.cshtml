@@ -1,0 +1,170 @@
+﻿@using blazorCrud.Shared.Models
+@page "/Usuarios"
+@inject HttpClient Http
+
+<h1>BLAZOR CRUD</h1>
+<hr />
+<table width="100%" style="background:#05163D;color:honeydew">
+    <tr>
+        <td width="20">&nbsp;</td>
+        <td>
+            <h2>Usuario</h2>
+        </td>
+        <td>&nbsp;</td>
+        <td align="right">
+            <button class="btn btn-info" onclick="@AddNewStudent">Novo Usuario</button>
+        </td>
+        <td width="10">&nbsp;</td>
+    </tr>
+    <tr>
+        <td colspan="2"></td>
+    </tr>
+</table>
+<hr />
+<form>
+    <table class="form-group">
+        <tr>
+            <td>
+                <label for="Name" class="control-label">ID</label>
+            </td>
+            <td>
+                <input type="text" class="form-control" bind="@stds.Id" readonly />
+            </td>
+            <td width="20">&nbsp;</td>
+            <td>
+                <label for="Name" class="control-label">Nome</label>
+            </td>
+            <td>
+                <input type="text" class="form-control" bind="@stds.Nome" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Email" class="control-label">Email</label>
+            </td>
+            <td>
+                <input type="text" class="form-control" bind="@stds.Email" />
+            </td>
+            <td width="20">&nbsp;</td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td width="20">&nbsp;</td>
+            <td></td>
+            <td>
+                <button type="submit" class="btn btn-success"
+                        onclick="@(async () => await AddStudent())" style="width:220px;">
+                    Salvar
+                </button>
+            </td>
+        </tr>
+    </table>
+</form>
+
+<table width="100%" style="background:#0A2464;color:honeydew">
+    <tr>
+        <td width="20">&nbsp;</td>
+        <td>
+            <h2>Lista</h2>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2"></td>
+    </tr>
+</table>
+
+@if (student == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Fone</th>
+
+                <th>Endereço</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var std in student)
+            {
+                <tr>
+                    <td>@std.Id</td>
+                    <td>@std.Nome</td>
+                    <td>@std.Email</td>
+
+                    <td>
+                        <button class="btn btn-primary"
+                                onclick="@(async () => await EditStudent(@std.Id))"
+                                style="width:110px;">
+                            Editar
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-danger"
+                                onclick="@(async () => await DeleteStudent(@std.Id))">
+                            Deletar
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@functions {
+Usuario[] student;
+
+Usuario stds = new Usuario();
+string ids = "0";
+bool showAddrow = false;
+protected override async Task OnInitAsync()
+{
+    student = await Http.GetJsonAsync<Usuario[]>("/api/usuarios/GetUsuarios");
+}
+
+void AddNewStudent()
+{
+    stds = new Usuario();
+}
+// Add New Student Details Method
+protected async Task AddStudent()
+{
+    if (stds.Id == 0)
+
+    {
+        await Http.SendJsonAsync(HttpMethod.Post, "/api/StudentMasters/", stds);
+
+    }
+    else
+    {
+        await Http.SendJsonAsync(HttpMethod.Put, "/api/StudentMasters/" + stds.Id, stds);
+    }
+    stds = new Usuario();
+    student = await Http.GetJsonAsync<Usuario[]>("/api/StudentMasters/");
+}
+// Edit Method
+protected async Task EditStudent(int studentID)
+{
+    ids = studentID.ToString();
+    stds = await Http.GetJsonAsync<Usuario>
+           ("/api/StudentMasters/" + Convert.ToInt32(studentID));
+}
+// Delte Method
+protected async Task DeleteStudent(int studentID)
+{
+    ids = studentID.ToString();
+    await Http.DeleteAsync("/api/usuarios/DeleteUsuario/" + Convert.ToInt32(studentID));
+
+    student = await Http.GetJsonAsync<Usuario[]>("/api/usuarios/GetUsuarios");
+}
+
+}
