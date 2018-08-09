@@ -1,6 +1,12 @@
 # blazorCrud
 
 
+Blazor (Browser + Razor)
+
+http://www.eduardopires.net.br/2018/02/framework-spa-da-microsoft-conheca-o-blazor/
+
+
+
 dotnet add package Microsoft.EntityFrameworkCore.Design  
 
 dotnet add package Pomelo.EntityFrameworkCore.MySql
